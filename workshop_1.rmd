@@ -1,0 +1,44 @@
+---
+title: "workshop_1"
+author: "Kyle Beall"
+date: "10/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# loading the libraries
+library(tidyverse)
+library(tidymodels)
+
+# install.packages("tidytext")
+library(tidytext)
+
+# install.packages("rtweet")
+library(rtweet)
+```
+
+```{r}
+# loading the data
+## search for 500 most recent English tweets using the chocolate hashtag
+choc_tweets <- search_tweets("#chocolate", n = 500, 
+                              type = "recent",
+                              include_rts = FALSE, 
+                             lang = "en")
+
+## search for 1000 most recent tweets by POTUS account
+potus_tweets <- search_tweets("@POTUS", 
+                              n = 1000,
+                              type = "recent",
+                              include_rts = FALSE,
+                              lang = "en")
+
+potus <- lookup_users("POTUS")
+
+
+
+
+```
