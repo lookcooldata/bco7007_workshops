@@ -56,5 +56,7 @@ coffee_tweets %>%
 # selecting for the variables we care about 
 coffee_short <- coffee_tweets %>%
   select(user_id, screen_name, created_at, text, favorite_count, retweet_count)
+
+coffee_short %>% write_csv("coffee_short_7_10_21.csv")
 ```
 
