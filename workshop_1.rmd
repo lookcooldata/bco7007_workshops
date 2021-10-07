@@ -1,5 +1,5 @@
 ---
-title: "workshop_1"
+title: "Twitter Coffee"
 author: "Kyle Beall"
 date: "10/7/2021"
 output: html_document
@@ -36,9 +36,25 @@ potus_tweets <- search_tweets("@POTUS",
                               include_rts = FALSE,
                               lang = "en")
 
-potus <- lookup_users("POTUS")
+## searching for tweets about coffee
+coffee_tweets <- search_tweets("coffee",
+                        n = 1800,
+                        include_rts = FALSE,
+                        lang = "en",
+                        retryonratelimit = TRUE)
+## `retryonratelimit` has to do with the twitter server and splits the query into smaller chunks
 
-
-
+## we want to save our coffee_tweets data to a separate csv file
+## using `select` to remove the "hashtags" column
+coffee_tweets %>% 
+  select(-hashtags, -symbols) %>%
+  write_csv("coffee_tweets_7_10_21.csv")
 
 ```
+
+```{r}
+# selecting for the variables we care about 
+coffee_short <- coffee_tweets %>%
+  select(user_id, screen_name, created_at, text, favorite_count, retweet_count)
+```
+
