@@ -60,3 +60,9 @@ coffee_short <- coffee_tweets %>%
 coffee_short %>% write_csv("coffee_short_7_10_21.csv")
 ```
 
+
+## explore the frequency of tweets 
+```{r}
+ts.plot(coffee_short, "hours")
+```
+

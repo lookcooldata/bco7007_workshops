@@ -1,0 +1,35 @@
+---
+title: "workshop_2"
+author: "Kyle Beall"
+date: "10/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tidytext)
+#install.packages("janeaustenr")
+library(janeaustenr)
+```
+
+```{r}
+a_books <- austen_books()
+#the data is currently stored by line in the book
+
+#splitup the 'text' variable in a_books into tokens of our choosing. Using "words" in this example
+a_words <- a_books %>% unnest_tokens(word, text)
+
+#which words are most popular for each book?
+popular_words <- a_words %>% count(book, word, sort = TRUE) 
+
+words_per_book <- popular_words %>%
+  group_by(book) %>%
+  summarise(total = sum(n))
+
+popular_words <-left_join(popular_words, words_per_book)
+```
+
