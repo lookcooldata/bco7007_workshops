@@ -1,0 +1,117 @@
+---
+title: "workshop 6"
+author: "Kyle Beall"
+date: "10/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# loading the libraries
+library(tidyverse)
+library(tidymodels)
+
+# install.packages("tidytext")
+library(tidytext)
+
+# install.packages("rtweet")
+library(rtweet)
+library(lubridate)
+```
+
+```{r}
+tweet <- choc_tweets
+
+#checking the type of data stored in created_at variable 
+class(tweet$created_at)
+
+#makeing a new variable with a more usable time format
+tweet <- tweet %>%
+  mutate(timestamp = ymd_hms(created_at))
+
+#this variable holds the special symbols that we want to remove
+remove_reg <- "&amp;|&lt;|&gt;"
+
+#now removing those special symbols from our tweets
+tidy_tweets <- tweet %>% 
+  filter(!str_detect(text, "^RT")) %>%
+  mutate(text = str_remove_all(text, remove_reg))
+
+#unnesting tweets
+tidy_tweets<-tidy_tweets%>%
+  unnest_tokens(word, text, token = "tweets")
+
+head(tidy_tweets$word)
+```
+```{r}
+selected_tweets <- tidy_tweets %>% select(timestamp, word, user_id)
+
+tidy_tweets<-tidy_tweets%>%
+  filter(!word %in% stop_words$word, #remove stopwords
+         !word %in% str_remove_all(stop_words$word, "'"),
+         str_detect(word, "[a-z]")) #keep only character-words
+
+selected_tweets_tidy <- tidy_tweets %>% select(timestamp, word, user_id)
+
+```
+
+```{r}
+#remove mentions, urls, emojies, hashtags, numbers, punctuation, ect. 
+
+#remove mentions 
+tidy_tweets$word<-gsub("@\\w+", "", tidy_tweets$word)
+
+#remove urls
+tidy_tweets$word<-gsub("https?://.+", "", tidy_tweets$word)
+
+#remove 
+tidy_tweets$word <- gsub("\\d+\\w*\\d*", "", tidy_tweets$word)
+
+#remove hashtags
+tidy_tweets$word <- gsub("#\\w+", "", tidy_tweets$word)
+
+#remove
+tidy_tweets$word <- gsub("[^\x01-\x7F]", "", tidy_tweets$word)
+
+#remove punctuation
+tidy_tweets$word <- gsub("[[:punct:]]", " ", tidy_tweets$word)
+
+```
+
+```{r}
+#sentiment 
+
+#makes a variable withe sentiments for words
+bing<-get_sentiments("bing")
+#install.packages("textdata")
+library(textdata)
+nrc<-get_sentiments("nrc")
+
+selected_tweets_tidy <- tidy_tweets %>% select(timestamp, word, user_id)
+
+#assigning the sentiments to the words in my tweet dataset
+selected_tweets_tidy <- selected_tweets_tidy %>%
+  inner_join(bing)
+
+selected_tweets_tidy %>%
+  count(sentiment, sort = TRUE)
+
+selected_tweets_tidy %>%
+  group_by(user_id) %>%
+  count(sentiment, sort = TRUE)
+
+```
+
+```{r}
+#wordcloud
+#install.packages("wordcloud")
+library(wordcloud)
+
+selected_tweets_tidy %>% filter(sentiment == "positive") %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 180))
+```
+
